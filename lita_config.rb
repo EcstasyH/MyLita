@@ -1,9 +1,12 @@
+
 Lita.configure do |config|
   # The name your robot will use.
   config.robot.name = "Lita"
+  # alias name 
+  config.robot.alias = "/"
 
   # The locale code for the language to use.
-  # config.robot.locale = :en
+  config.robot.locale = :es#n
 
   # The severity of messages to log. Options are:
   # :debug, :info, :warn, :error, :fatal
@@ -17,8 +20,10 @@ Lita.configure do |config|
 
   # The adapter you want to connect with. Make sure you've added the
   # appropriate gem to the Gemfile.
-  config.robot.adapter = :shell
+  config.robot.adapter = :railschatbot#
+  config.adapters.shell.private_chat = true
 
+  config.http.max_threads = 32
   ## Example: Set options for the chosen adapter.
   # config.adapter.username = "myname"
   # config.adapter.password = "secret"
@@ -29,5 +34,5 @@ Lita.configure do |config|
 
   ## Example: Set configuration for any loaded handlers. See the handler's
   ## documentation for options.
-  # config.handlers.some_handler.some_config_key = "value"
+  ## config.handlers.some_handler.some_config_key = "value"
 end

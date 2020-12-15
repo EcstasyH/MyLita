@@ -1,0 +1,4 @@
+en:
+  lita:
+    handlers:
+      get_lectures_info:

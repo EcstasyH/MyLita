@@ -10,5 +10,18 @@ gem "lita"
 
 # Add handlers to give Lita new functionality.
 # For example:
-# gem "lita-google-images"
-# gem "lita-karma"
+gem "lita-doubler"
+gem "lita-task-scheduler"  #,path: "./lita-task-scheduler"
+
+#gem "lita-get-lectures-info"  , path: "./lita-get-lectures-info"
+gem "lita-railschatbot"  , path: "./lita-railschatbot"
+
+# connect with Rails database SQLite
+gem "sqlite3"
+
+gem "json"
+
+
+gem 'selenium-webdriver'
+gem 'webdrivers'
+gem 'nokogiri'
