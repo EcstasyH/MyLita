@@ -6,7 +6,7 @@ Lita.configure do |config|
   config.robot.alias = "/"
 
   # The locale code for the language to use.
-  config.robot.locale = :es#n
+  config.robot.locale = :en
 
   # The severity of messages to log. Options are:
   # :debug, :info, :warn, :error, :fatal
@@ -23,7 +23,7 @@ Lita.configure do |config|
   config.robot.adapter = :railschatbot#
   config.adapters.shell.private_chat = true
 
-  config.http.max_threads = 32
+  # config.http.max_threads = 32
   ## Example: Set options for the chosen adapter.
   # config.adapter.username = "myname"
   # config.adapter.password = "secret"

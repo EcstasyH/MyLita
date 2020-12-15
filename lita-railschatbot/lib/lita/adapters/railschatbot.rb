@@ -50,10 +50,14 @@ module Lita
           #strings.map! { |string| "\e[32m#{string}\e[0m" }
           strings.map! { |string| "#{string}" }
         end
+        #
+        @db = SQLite3::Database.open "../db/development.sqlite3"
+        @db.results_as_hash = true
+        rs = @db.execute "SELECT * FROM messages" 
 
         from_bot = 1
-        @db.execute "INSERT INTO messages VALUES('#{@last_read_id+1}','#{strings}','#{from_bot}','#{@uid}','#{Time.now}','#{Time.now}')"
-        
+        new_id = rs.last[0]+1
+        @db.execute "INSERT INTO messages VALUES('#{new_id}','#{strings}','#{from_bot}','#{@uid}','#{Time.now}','#{Time.now}')"
       end
 
       # Adds a blank line for a nice looking exit.
@@ -81,13 +85,6 @@ module Lita
       def normalize_input(input)
         input.chomp.strip
       end
-
-      #def read_input
-      #  input = Readline.readline("#{robot.name} > ", true)
-        # Input read via rb-readline will always be encoded as US-ASCII.
-        # @see https://github.com/luislavena/rb-readline/blob/master/lib/readline.rb#L1
-      #  input.force_encoding(Encoding.default_external) if input
-      #end
       
       #modified
       def collect_and_send 
@@ -98,7 +95,17 @@ module Lita
         stm.bind_param 1, @last_read_id
         rs = stm.execute
         
-        rs.each do |row|
+        a = Array.new
+        rs.each do |row| 
+            m = Hash["id"=> row['id'], 'body' => row['body'], 'from_bot'=> row['from_bot'], 'user_id'=>row['user_id'] ]
+            a << m
+        end
+        
+        #close 
+        stm.close if stm
+        @db.close if @db
+
+        a.each do |row|
           @uid = row['user_id']
           input = row['body']
           @last_read_id = row['id']
@@ -109,16 +116,7 @@ module Lita
           robot.receive(build_message(input, @source))
         end
 
-        record_read_id
-
-        rescue SQLite3::Exception => e 
-          puts "Exception occurred"
-          puts e    
-        ensure
-        
-          stm.close if stm
-        @db.close if @db
-        
+        record_read_id        
       end
 
       #modified
