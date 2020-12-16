@@ -47,7 +47,6 @@ module Lita
         strings = Array(strings)
         strings.reject!(&:empty?)
         unless RbConfig::CONFIG["host_os"] =~ /mswin|mingw/ || !$stdout.tty?
-          #strings.map! { |string| "\e[32m#{string}\e[0m" }
           strings.map! { |string| "#{string}" }
         end
         #

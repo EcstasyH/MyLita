@@ -8,6 +8,7 @@ GEM
   remote: https://rubygems.org/
   specs:
     childprocess (3.0.0)
+    coderay (1.1.3)
     concurrent-ruby (1.1.7)
     et-orbi (1.2.4)
       tzinfo
@@ -40,12 +41,19 @@ GEM
     lita-task-scheduler (1.1.0)
       lita (>= 4.7)
       rufus-scheduler
+    lita-whats-brad-eating (1.0.1)
+      lita (>= 4.7)
+      nokogiri
+    method_source (1.0.0)
     mini_portile2 (2.4.0)
     multi_json (1.15.0)
     multipart-post (2.1.1)
     nio4r (2.5.4)
     nokogiri (1.10.10)
       mini_portile2 (~> 2.4.0)
+    pry (0.13.1)
+      coderay (~> 1.1)
+      method_source (~> 1.0)
     puma (5.0.2)
       nio4r (~> 2.0)
     raabro (1.4.0)
@@ -80,7 +88,9 @@ DEPENDENCIES
   lita-doubler
   lita-railschatbot!
   lita-task-scheduler
+  lita-whats-brad-eating
   nokogiri
+  pry
   selenium-webdriver
   sqlite3
   webdrivers
