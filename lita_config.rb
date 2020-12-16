@@ -32,6 +32,11 @@ Lita.configure do |config|
   # config.redis.host = "127.0.0.1"
   # config.redis.port = 1234
 
+  # This requires that all memes be sent as commands. If this is false, the bot will listen in the channel
+  #config.handlers.imgflip.command_only = true
+
+  #config.handlers.imgflip.username = 'EcstasyH'
+  #config.handlers.imgflip.password = 'qwer12321'
   ## Example: Set configuration for any loaded handlers. See the handler's
   ## documentation for options.
   ## config.handlers.some_handler.some_config_key = "value"

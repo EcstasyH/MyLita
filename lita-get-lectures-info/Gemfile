@@ -6,3 +6,4 @@ gemspec
 gem 'selenium-webdriver'
 gem 'webdrivers'
 gem 'nokogiri'
+gem 'sqlite3'

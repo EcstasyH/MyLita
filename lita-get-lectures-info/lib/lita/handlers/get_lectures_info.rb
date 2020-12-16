@@ -1,4 +1,5 @@
-require 'net/http'
+require 'mechanize'
+require 'sqlite3'
 
 module Lita
   module Handlers
@@ -13,86 +14,89 @@ module Lita
 
 
       def respond_with_lecture(response)
-        # 工头函数
+        # top level
         @login_page = 'http://sep.ucas.ac.cn/'
         @receice_page = 'http://sep.ucas.ac.cn/msg/receive/list'
-        @msg=[]
-        
-        chromedriver_path = File.join(File.absolute_path('./', File.dirname(__FILE__)),'chromedriver')
-        #chromedriver_path = File.join(File.absolute_path('/Users/wuhao/Download/', File.dirname(__FILE__)),'chromedriver')
-        
-        Selenium::WebDriver::Chrome::Service.driver_path = chromedriver_path
-        @browser = Selenium::WebDriver.for :chrome
-        sleep(3)
+        @agent = Mechanize.new
+        @msg = []
         #
+        get_cookie#(userName, pwd)
         get_list
-        @browser.quit
-        # 框架使用这一行返回
-        # 用这个函数返回前端就能收到了
-        response.reply @msg
+        parse_list
+        #
+        response.reply @output
       end
 
       
 
-      def get_cookie
-        # 
-        @browser.navigate.to @login_page
-        #elem_user = @browser.find_elements(:xpath, '//input[@id="userName"]')
-        #elem_user.send_keys('maxiaohan20@mails.ucas.ac.cn')
-        #elem_pwd = @browser.find_elements(:xpath, '//input[@type="password"]')
-        #elem_pwd.send_keys('msqmf997')
-        
-        sleep(20)
-        #wuhao164@mails.ucas.ac.cn 
-        #wh17771411015
-        #commit = browser.find_element_by_xpath('//button[@type="submit"]')
-        #commit.click
+      def get_cookie#(userName, pwd)
+        # aim to get agent with cookie
+        page = @agent.get(@login_page)
+        login_form = page.forms.first
+        login_form.userName = 'maxiaohan20@mails.ucas.ac.cn'
+        login_form.pwd = 'msqmf997'
+        page = @agent.submit(login_form, login_form.buttons.first)
       end
 
       
 
       def get_list
         #
-        get_cookie
+        @page_rec = @agent.get(@receice_page)
+      end
 
-        @browser.navigate.to @receice_page
-        doc = Nokogiri::HTML(@browser.page_source)
-        
-        # 点不止一下，如何分开处理
-        # 得了吧，因为网页刷新时会无法继续find element，这方法不奏效
-        # notices = @browser.find_elements_by_xpath --python 写法
 
+      def parse_list
+        # 
+        nodeset = @page_rec.search("//a[contains(@href,'receiverShow') and contains(text(),'关于科学前沿讲座的通知')]/@href")
+        urls = []
+        nodeset.each {|element| urls.append(element.value)}
+        urls.map! { |e| 'http://sep.ucas.ac.cn' + e }
         #
-        notices = []
-        notice = @browser.find_elements(:xpath, "//a[contains(@href,'receiverShow') and contains(text(),'关于科学前沿讲座的通知')]")  
-        notice.each {|element| notices.append(@login_page + element["href"]) }
+        tmp = 1
+        urls.each do |url|
+          html = @agent.get(url)
+          table = html.search("td")
+          list = []
+          table.each { |e| list.append(e.text) }
+          list = list.drop(9)
 
-
-        notices.each do |url|
-          puts url.class
-          @browser.navigate.to url
-          doc_sub = Nokogiri::HTML(@browser.page_source)
-          sleep(10)
-          parse_list(doc_sub)
+          if tmp != list
+            @msg += list
+          end
+          tmp = list
         end
-
-        # 测试用的没用的话
-        ll = []
-        ll = notices
+        
+        write_in_db
 
       end
 
+      def write_in_db
+        db = SQLite3::Database.open "development.sqlite3"
 
-      def parse_list(doc)
-        # 根据位置
-        table = doc.xpath("//td")
-        list = []
-        table.each { |e| list.append(e.text) }
-        list.drop(9)
-        @msg += list
+        rs = db.execute "SELECT * FROM lectures" 
+        
+        @output =[]
+
+        if !rs.last
+          new_id = 1
+        else 
+          new_id = rs.last[0]+1
+        end
+        i=0
+        while(@msg[4*i]) do
+          db.execute "INSERT INTO Lectures VALUES('#{i+new_id}','#{@msg[4*i]}','#{@msg[4*i+1]}','#{@msg[4*i+2]}','#{@msg[4*i+3]}')"
+          @output << (i+new_id).to_s
+          @output << @msg[4*i]
+          @output << @msg[4*i+1]
+          @output << @msg[4*i+2]
+          @output << @msg[4*i+3]
+          i=i+1
+        end 
+        #@output = @output.to_s
+        db.close
       end
 
-      
       Lita.register_handler(self)
     end
   end

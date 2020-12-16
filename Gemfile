@@ -12,14 +12,18 @@ gem "lita"
 # For example:
 gem "pry"
 gem "lita-doubler"
-gem "lita-task-scheduler"  #,path: "./lita-task-scheduler"
-gem "lita-whats-brad-eating" #, path: "./lita-whats-brad-eating"
+gem "lita-task-scheduler"  ,path: "./lita-task-scheduler"
 
-#gem "lita-get-lectures-info"  , path: "./lita-get-lectures-info"
+gem "lita-get-lectures-info"  , path: "./lita-get-lectures-info"
 gem "lita-railschatbot"  , path: "./lita-railschatbot"
+
+#gem "lita-imgflip"
+
 #gem "lita-imgflip-memes" , path: "./lita-imgflip-memes"
 # connect with Rails database SQLite
 gem "sqlite3"
+gem "mechanize"
+
 
 gem "json"
 

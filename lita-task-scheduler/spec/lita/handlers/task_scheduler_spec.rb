@@ -5,6 +5,9 @@ describe Lita::Handlers::TaskScheduler, lita_handler: true do
         it {is_expected.to route('Lita schedule "double 4" in 2 hours')}
         it {is_expected.to route('Lita show schedule')}
         it {is_expected.to route('Lita empty schedule')}
+        
+        it {is_expected.to_not route('Lita repeat "123"')}
+        it {is_expected.to route('Lita repeat 123')}
     end
 
     describe ':defer_task' do

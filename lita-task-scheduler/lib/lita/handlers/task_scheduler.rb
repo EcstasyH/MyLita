@@ -11,10 +11,18 @@ require 'lita/scheduler'
 module Lita
   module Handlers
     class TaskScheduler < Handler
-
+      
+      route(/^remind\sme\sof\s(\d+)\sin\s(.+)$/i, :remind_command, command: true)
+      route(/^repeat\s+(.+)$/, :repeat_command, command: true)
       route(/^schedule\s+"(.+)"\s+in\s+(.+)$/i, :schedule_command, command: true)
       route(/^show schedule$/i, :show_schedule, command: true)
       route(/^empty schedule$/i, :empty_schedule, command: true)
+      
+
+      def repeat_command(payload)
+        str = payload.matches.last
+        payload.reply str
+      end
 
       def show_schedule(payload)
         payload.reply schedule_report(scheduler.get_all)
@@ -32,6 +40,31 @@ module Lita
 
         defer_task(serialized, run_at)
         show_schedule payload
+      end
+
+
+      def remind_command(payload)
+        lecture_id, timing = payload.matches.last
+        run_at = parse_timing(timing)
+        
+        name = find_lecture_name_in_db(lecture_id)
+        if !name.is_a?(String)
+          payload.reply "Could not find the lecture."
+          return
+        end
+        task = "repeat It is time for #{name}" 
+        serialized = command_to_hash(payload.message, new_body: task)
+
+        defer_task(serialized, run_at)
+        show_schedule payload
+      end
+
+      def find_lecture_name_in_db(id)
+        id.to_i
+        db = SQLite3::Database.open "development.sqlite3"
+        rs = db.execute "SELECT * FROM lectures WHERE Id=#{id.to_i}"
+        db.close 
+        rs.to_s
       end
 
       def scheduler
