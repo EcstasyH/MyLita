@@ -13,6 +13,7 @@ module Lita
     class TaskScheduler < Handler
       
       route(/^remind\sme\sof\s(\d+)\sin\s(.+)$/i, :remind_command, command: true)
+      route(/^remind\sme\sby\semail\sof\s(\d+)\sin\s(.+)$/i, :remind_command_by_email, command: true)
       route(/^repeat\s+(.+)$/, :repeat_command, command: true)
       route(/^schedule\s+"(.+)"\s+in\s+(.+)$/i, :schedule_command, command: true)
       route(/^show schedule$/i, :show_schedule, command: true)
@@ -54,8 +55,26 @@ module Lita
         end
         task = "repeat It is time for #{name}" 
         serialized = command_to_hash(payload.message, new_body: task)
-
         defer_task(serialized, run_at)
+
+        show_schedule payload
+      end
+
+      def remind_command_by_email(payload)
+        lecture_id, timing = payload.matches.last
+        run_at = parse_timing(timing)
+        
+        name = find_lecture_name_in_db(lecture_id)
+        if !name.is_a?(String)
+          payload.reply "Could not find the lecture."
+          return
+        end
+        #user = command_hash.fetch('user_name')
+        user = "765695900@qq.com"
+        task = "email #{user} It's time for lecture#{name}" 
+        serialized = command_to_hash(payload.message, new_body: task)
+        defer_task(serialized, run_at)
+
         show_schedule payload
       end
 

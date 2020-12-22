@@ -84,11 +84,8 @@ module Lita
       #modified
       def collect_and_send 
         open_database
-        
-        a=read_database(@db, @last_read_id)
-
+        a = read_database(@db, @last_read_id)
         close_database
-
         a.each do |row|
           @uid = row['user_id']
           input = row['body']
@@ -99,7 +96,6 @@ module Lita
           end
           robot.receive(build_message(input, @source))
         end
-
         record_read_id 
         a       
       end
